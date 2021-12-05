@@ -3,6 +3,8 @@ package com.example.blockchainservice.services;
 
 import com.example.blockchainservice.entities.Block;
 import com.example.blockchainservice.entities.Transaction;
+import com.example.blockchainservice.repository.BlockRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,17 +14,25 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
 public class BlockServiceImpl implements BlockService{
+
+    @Autowired
+    private BlockRepository blockRepository;
+
     @Override
     public Block createBlock(List<Transaction> transactions,String prevHash ) {
         Block newBlock = new Block();
+        newBlock.setId(UUID.randomUUID().toString());
         newBlock.setCreated_at(new Date());
         newBlock.setPres_hash(prevHash);
         newBlock.setTransactions(transactions);
         newBlock.setMy_hash(calculateHash(newBlock));
+
+        blockRepository.save(newBlock);
 
         return newBlock;
     }
@@ -31,7 +41,7 @@ public class BlockServiceImpl implements BlockService{
 
     @Override
     public String calculateHash(Block block) {
-        String dataToHash =  block.getPres_hash() + block.getCreated_at().toString() + block.getTransactions().get(0).hashCode() + Integer.toString(block.getNonce());
+        String dataToHash =  block.getPres_hash() + block.getCreated_at().toString() + block.getTransactions().hashCode() + Integer.toString(block.getNonce());
 
         MessageDigest digest = null;
         byte[] bytes = null;

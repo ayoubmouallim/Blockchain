@@ -20,7 +20,7 @@ public class Block {
     private Date created_at;
     private String my_hash;
     private String pres_hash;
-    @OneToMany
+    @OneToMany(mappedBy = "block")
     private List<Transaction> transactions = new ArrayList<>();
     private int  nonce; // (un entier utilisé au moment du minage des blocks).
 
