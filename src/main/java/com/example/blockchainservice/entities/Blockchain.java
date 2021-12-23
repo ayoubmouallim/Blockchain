@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -13,13 +14,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Blockchain {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     private String id;
     private String nom;
     private int difficulté; // (entier utilisé au moment du minage),
     private double miningReward; // (récompense attribuée au mineur du block).
     @OneToMany
-    private List<Block> blocks = new ArrayList<>();
+    private List<Block> blocks = new LinkedList<>();
 
 
 

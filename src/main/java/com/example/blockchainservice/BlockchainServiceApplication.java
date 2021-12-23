@@ -28,7 +28,7 @@ public class BlockchainServiceApplication {
     CommandLineRunner start(TransactionRepository transactionRepository, BlockRepository blockRepository,
                             BlockChainRepository blockchainRepository, BlockService blockService) {
         return args -> {
-            System.out.println("started from the bottom");
+           /* System.out.println("********* start ************");
             Transaction tr1 = transactionRepository.save(new Transaction("1",new Date(),"AAA123","BBB123",112));
             Transaction tr2 = transactionRepository.save(new Transaction("2",new Date(),"AZE23","AQW123",95));
 
@@ -42,7 +42,7 @@ public class BlockchainServiceApplication {
 
             Block nextBlock = blockService.createBlock(transactions,firstBlock.getMy_hash());
             System.out.println("nextBlock: "+nextBlock.getMy_hash());
-            Block lastBlock = blockService.mineBlock(3,nextBlock);
+            Block lastBlock = blockService.mineBlock(4,nextBlock);
 
             blockchain.getBlocks().add(firstBlock);
             blockchain.getBlocks().add(nextBlock);
@@ -50,6 +50,8 @@ public class BlockchainServiceApplication {
 
             System.out.println("lastBlock hash: "+lastBlock.getMy_hash());
             System.out.println("nonce: "+lastBlock.getNonce());
+
+            */
         };
     }
 

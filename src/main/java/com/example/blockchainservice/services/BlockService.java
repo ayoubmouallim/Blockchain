@@ -13,4 +13,5 @@ public interface BlockService {
      String calculateHash(Block block);
      Block mineBlock(int difficulty,Block block);
 
+    List<Block> getAllBlocks();
 }

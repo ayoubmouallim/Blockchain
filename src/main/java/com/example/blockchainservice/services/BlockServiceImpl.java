@@ -34,6 +34,7 @@ public class BlockServiceImpl implements BlockService{
 
         blockRepository.save(newBlock);
 
+
         return newBlock;
     }
 
@@ -41,7 +42,11 @@ public class BlockServiceImpl implements BlockService{
 
     @Override
     public String calculateHash(Block block) {
-        String dataToHash =  block.getPres_hash() + block.getCreated_at().toString() + block.getTransactions().hashCode() + Integer.toString(block.getNonce());
+
+        String dataToHash =  block.getPres_hash() + block.getCreated_at().toString()  + Integer.toString(block.getNonce());
+
+        if(block.getTransactions() != null)
+            dataToHash+= block.getTransactions().hashCode();
 
         MessageDigest digest = null;
         byte[] bytes = null;
@@ -73,6 +78,13 @@ public class BlockServiceImpl implements BlockService{
         block.setMy_hash(hash);
 
         // return block with new hash
+        blockRepository.save(block);
+
         return block;
+    }
+
+    @Override
+    public List<Block> getAllBlocks() {
+        return blockRepository.findAll();
     }
 }

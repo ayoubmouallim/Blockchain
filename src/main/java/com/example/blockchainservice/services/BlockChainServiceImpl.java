@@ -5,12 +5,16 @@ import com.example.blockchainservice.entities.Block;
 import com.example.blockchainservice.entities.Blockchain;
 import com.example.blockchainservice.entities.Miner;
 import com.example.blockchainservice.entities.Transaction;
+import com.example.blockchainservice.exceptions.BlockChaineNotFoundException;
+import com.example.blockchainservice.repository.BlockChainRepository;
 import com.example.blockchainservice.repository.MinerRepository;
+import com.example.blockchainservice.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -19,35 +23,96 @@ public class BlockChainServiceImpl implements BlockChainService{
     @Autowired
     private BlockService blockService;
     @Autowired
-    private MinerRepository minerRepository;
+    private BlockChainRepository blockChainRepository;
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @Override
-    public Blockchain createBlockChain() {
-    /*    Blockchain blockchain = new Blockchain();
-        Block block = new Block();
+    public Blockchain createBlockChain(String name,int difficulty,int reward) {
+       Blockchain blockchain = new Blockchain();
+       // first block on the blockchain
+        Block GenisisBlock = blockService.createBlock(null,"");
+        blockchain.setNom(name);
+        blockchain.setId(UUID.randomUUID().toString());
+        blockchain.getBlocks().add(GenisisBlock);
+        blockchain.setDifficulté(difficulty);
+        blockchain.setMiningReward(reward);
 
-        blockchain.setNom("GenisisBlock");
-        blockchain.getBlocks().add(blockService.createBlock());
-        return blockchain;*/
-        return null;
+        blockChainRepository.save(blockchain);
+
+        return blockchain;
+    }
+
+   @Override
+    public void mineBlock(String blockchainID,String min_adr, List<Transaction> pendingTransactions) {
+
+       Blockchain blockchain = blockChainRepository.findById(blockchainID).get();
+       Block lastBlock = getLastBlock(blockchainID);
+
+       // save transactions
+
+       transactionRepository.saveAll(pendingTransactions);
+
+       Block block = blockService.createBlock(pendingTransactions,lastBlock.getMy_hash());
+
+
+       Block minedBlock = blockService.mineBlock(blockchain.getDifficulté(), block);
+       // add the mined block to the blockchain
+       blockchain.getBlocks().add(minedBlock);
+
+       blockChainRepository.save(blockchain);
+
+   }
+
+    @Override
+    public Block getLastBlock(String blockchainID) {
+         Blockchain blockchain = blockChainRepository.findById(blockchainID).get();
+        if(blockchain == null)
+            return null;
+        return blockchain.getBlocks().get(blockchain.getBlocks().size()-1);
     }
 
     @Override
-    public void minerBlock(String min_adr, List<Transaction> pendingTransactions) {
+    public Boolean isValid(String blockchainID) {
+        Blockchain blockchain = blockChainRepository.findById(blockchainID).get();
+        if(blockchain == null) return false;
 
-    }
-
-   /* @Override
-    public Blo minerBlock(String min_adr, List<Transaction> pendingTransactions,String pres_hash)
-    {
-        Blockchain blockchain = createBlockChain();
-        Block block = blockService.createBlock();
-
-        for (Transaction transaction:pendingTransactions)
+        Block previosBlock = null;
+        for (Block block :blockchain.getBlocks())
         {
-            blockService.minerBlock(blockchain.getDifficulté(),block);
+            if(!block.getMy_hash().equals(blockService.calculateHash(block)))
+                return false;
+            if(!previosBlock.getMy_hash().equals(block.getPres_hash()))
+                return false;
+            previosBlock = block;
         }
-        Miner miner =  minerRepository.findBy()
-    }*/
+
+        return true;
+    }
+
+    @Override
+    public double getAddressSolde(String blockchainID,String addr) {
+        Blockchain blockchain = blockChainRepository.findById(blockchainID).get();
+
+        double solde = 0;
+
+        for (Block block : blockchain.getBlocks())
+        {
+            for (Transaction transaction : block.getTransactions())
+            {
+                if(transaction.getDes_adr().equals(addr))
+                    solde+=transaction.getMontant();
+            }
+        }
+        return solde;
+    }
+
+    @Override
+    public Blockchain getBlockchaineByID(String id) throws BlockChaineNotFoundException {
+        Blockchain blockchain = blockChainRepository.findById(id).get();
+        if(blockchain == null) throw  new BlockChaineNotFoundException("blockchaine does not exist !");
+
+        return blockchain;
+    }
 
 }

@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor @NoArgsConstructor
 public class Block {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     private String id;
     private Date created_at;
     private String my_hash;
