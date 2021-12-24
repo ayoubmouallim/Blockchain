@@ -4,6 +4,7 @@ package com.example.blockchainservice.services;
 import com.example.blockchainservice.entities.Block;
 import com.example.blockchainservice.entities.Transaction;
 import com.example.blockchainservice.repository.BlockRepository;
+import com.example.blockchainservice.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ public class BlockServiceImpl implements BlockService{
 
     @Autowired
     private BlockRepository blockRepository;
+    @Autowired private TransactionRepository transactionRepository;
 
     @Override
     public Block createBlock(List<Transaction> transactions,String prevHash ) {
@@ -29,10 +31,18 @@ public class BlockServiceImpl implements BlockService{
         newBlock.setId(UUID.randomUUID().toString());
         newBlock.setCreated_at(new Date());
         newBlock.setPres_hash(prevHash);
-        newBlock.setTransactions(transactions);
         newBlock.setMy_hash(calculateHash(newBlock));
-
+        //newBlock.setTransactions(transactions);
         blockRepository.save(newBlock);
+
+        if(transactions != null)
+        {
+            for(Transaction transaction:transactions)
+            {
+                transaction.setBlock(newBlock);
+            }
+            transactionRepository.saveAll(transactions);
+        }
 
 
         return newBlock;
@@ -63,9 +73,8 @@ public class BlockServiceImpl implements BlockService{
         return buffer.toString();
     }
 
-    @Override
-    public Block mineBlock(int difficulty,Block block) {
-
+    public String getThePerfectHash(int difficulty,Block block)
+    {
         // if difficulty = 4 ===> difficultyString = "0000"
         String difficultyString = new String(new char[difficulty]).replace('\0', '0');
         String hash = block.getMy_hash();
@@ -76,6 +85,13 @@ public class BlockServiceImpl implements BlockService{
         }
         System.out.println("found hash: "+hash);
         block.setMy_hash(hash);
+    return hash;
+    }
+
+    @Override
+    public Block mineBlock(int difficulty,Block block) {
+
+        getThePerfectHash(difficulty,block);
 
         // return block with new hash
         blockRepository.save(block);

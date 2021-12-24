@@ -32,6 +32,7 @@ public class BlockChainServiceImpl implements BlockChainService{
        Blockchain blockchain = new Blockchain();
        // first block on the blockchain
         Block GenisisBlock = blockService.createBlock(null,"");
+        blockService.mineBlock(difficulty,GenisisBlock);
         blockchain.setNom(name);
         blockchain.setId(UUID.randomUUID().toString());
         blockchain.getBlocks().add(GenisisBlock);
@@ -49,12 +50,7 @@ public class BlockChainServiceImpl implements BlockChainService{
        Blockchain blockchain = blockChainRepository.findById(blockchainID).get();
        Block lastBlock = getLastBlock(blockchainID);
 
-       // save transactions
-
-       transactionRepository.saveAll(pendingTransactions);
-
        Block block = blockService.createBlock(pendingTransactions,lastBlock.getMy_hash());
-
 
        Block minedBlock = blockService.mineBlock(blockchain.getDifficulté(), block);
        // add the mined block to the blockchain
@@ -80,10 +76,25 @@ public class BlockChainServiceImpl implements BlockChainService{
         Block previosBlock = null;
         for (Block block :blockchain.getBlocks())
         {
-            if(!block.getMy_hash().equals(blockService.calculateHash(block)))
+            if(!block.getMy_hash().equals(((BlockServiceImpl)blockService).getThePerfectHash(blockchain.getDifficulté(),block)))
+            {
+                System.out.println("broblem in current hash");
+                System.out.println("block hash: "+block.getMy_hash());
+                System.out.println("calculated hash: "+blockService.calculateHash(block));
+
+
+
                 return false;
-            if(!previosBlock.getMy_hash().equals(block.getPres_hash()))
+            }
+
+            if(previosBlock!= null && !previosBlock.getMy_hash().equals(block.getPres_hash()))
+            {
+                System.out.println("broblem in previous hash");
+                System.out.println("current pres hash:"+ block.getPres_hash());
+                System.out.println("pres block hash:"+ previosBlock.getMy_hash());
                 return false;
+
+            }
             previosBlock = block;
         }
 

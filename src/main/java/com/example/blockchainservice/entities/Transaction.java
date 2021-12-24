@@ -23,7 +23,7 @@ public class Transaction {
     private String des_adr;
     private double montant;
     @ManyToOne
-    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Block block;
 
     public Transaction(Long id, Date transaction_date, String src_adr, String des_adr, double montant) {
