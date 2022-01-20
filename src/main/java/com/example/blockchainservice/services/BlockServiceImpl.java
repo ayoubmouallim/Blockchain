@@ -53,11 +53,11 @@ public class BlockServiceImpl implements BlockService{
     @Override
     public String calculateHash(Block block) {
 
-        String dataToHash =  block.getPres_hash() + block.getCreated_at().toString()  + Integer.toString(block.getNonce());
+        String dataToHash =  block.getPres_hash() + block.getCreated_at().toString()
+            + Integer.toString(block.getNonce());
 
         if(block.getTransactions() != null)
             dataToHash+= block.getTransactions().hashCode();
-
         MessageDigest digest = null;
         byte[] bytes = null;
         try {

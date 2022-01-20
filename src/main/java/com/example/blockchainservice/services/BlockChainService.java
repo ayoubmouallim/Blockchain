@@ -18,5 +18,6 @@ public interface BlockChainService {
     Boolean isValid(String blockchainID);
     double getAddressSolde(String blockchainID,String addr);
     Blockchain getBlockchaineByID(String id) throws BlockChaineNotFoundException;
+    List<Blockchain> getAllBlochChain();
 
 }

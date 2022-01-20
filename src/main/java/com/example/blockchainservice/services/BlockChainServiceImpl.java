@@ -82,8 +82,6 @@ public class BlockChainServiceImpl implements BlockChainService{
                 System.out.println("block hash: "+block.getMy_hash());
                 System.out.println("calculated hash: "+blockService.calculateHash(block));
 
-
-
                 return false;
             }
 
@@ -124,6 +122,11 @@ public class BlockChainServiceImpl implements BlockChainService{
         if(blockchain == null) throw  new BlockChaineNotFoundException("blockchaine does not exist !");
 
         return blockchain;
+    }
+
+    @Override
+    public List<Blockchain> getAllBlochChain() {
+        return blockChainRepository.findAll();
     }
 
 }

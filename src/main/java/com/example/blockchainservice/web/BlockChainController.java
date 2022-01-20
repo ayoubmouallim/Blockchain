@@ -7,8 +7,7 @@ import com.example.blockchainservice.entities.Block;
 import com.example.blockchainservice.entities.Blockchain;
 import com.example.blockchainservice.entities.Transaction;
 import com.example.blockchainservice.exceptions.BlockChaineNotFoundException;
-import com.example.blockchainservice.mapper.BlockMapper;
-import com.example.blockchainservice.mapper.TransactionMapper;
+
 import com.example.blockchainservice.services.BlockChainService;
 import com.example.blockchainservice.services.BlockService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,20 +22,16 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/blockchaine")
+@CrossOrigin(origins = "*"  )
 public class BlockChainController {
 
     @Autowired
     BlockChainService blockChainService;
-    //@Autowired BlockMapper blockMapper;
-    //@Autowired TransactionMapper transactionMapper;
-
 
     @PostMapping("/create")
     public Blockchain createBlockChaine(@RequestBody BlockchaineDto blockchaineDto)
     {
-
         return blockChainService.createBlockChain(blockchaineDto.getName(),blockchaineDto.getDifficulty(),blockchaineDto.getReward());
-
     }
 
     @GetMapping("/{id}")
@@ -44,11 +39,16 @@ public class BlockChainController {
         return blockChainService.getBlockchaineByID(id);
     }
 
+    @GetMapping("/all")
+    public  List<Blockchain> getAllBlockchain() throws BlockChaineNotFoundException {
+        return blockChainService.getAllBlochChain();
+    }
 
     @PostMapping("mine")
     public void mineBlock(@RequestBody BlockDto blockDto)
     {
-        List<Transaction> transactions = blockDto.getTransactions().stream().map(trDto ->new Transaction(null,new Date(),trDto.getSrc_adr(),trDto.getDes_adr(),trDto.getMontant()) ).collect(Collectors.toList());
+        List<Transaction> transactions = blockDto.getTransactions().stream().map(trDto ->new Transaction(
+            null,new Date(),trDto.getSrc_adr(),trDto.getDes_adr(),trDto.getMontant()) ).collect(Collectors.toList());
         blockChainService.mineBlock(blockDto.getBlockchainID(),blockDto.getMin_adr(),transactions);
     }
 
